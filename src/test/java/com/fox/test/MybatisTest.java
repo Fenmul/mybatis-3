@@ -39,12 +39,19 @@ public class MybatisTest {
    * 使用 mybatis 调用接口查询 User 信息
    */
   @Test
-  public void testSelectList(){
+  public void testSelectList() {
     UserDao mapper = sqlSession.getMapper(UserDao.class);
     List<User> users = mapper.selectList();
 
     for (User user : users) {
       System.out.println(user);
     }
+  }
+
+  @Test
+  public void testSelectOne() {
+    UserDao mapper = sqlSession.getMapper(UserDao.class);
+    User user = mapper.selectById(1);
+    System.out.println(user);
   }
 }

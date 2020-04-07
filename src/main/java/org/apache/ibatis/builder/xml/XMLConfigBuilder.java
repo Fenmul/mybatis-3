@@ -100,23 +100,32 @@ public class XMLConfigBuilder extends BaseBuilder {
     return configuration;
   }
 
+  // 解析 xml 配置文件
   private void parseConfiguration(XNode root) {
     try {
-      // issue #117 read properties first
+      // issue #117 read properties first 引入外部文件，比如数据库相关信息
       propertiesElement(root.evalNode("properties"));
+      // 二级缓存在 settings 标签中开启
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       loadCustomVfs(settings);
       loadCustomLogImpl(settings);
+      // 遍历别名，注意所有的别名都在同一个 typeAliases Map 中，并且不区分大小写
       typeAliasesElement(root.evalNode("typeAliases"));
+      // 解析插件
       pluginElement(root.evalNode("plugins"));
+
+      // 自定义实例化对象的行为：返回 user 对象时，赋值或者统一操作时可以重写 objectFactory 接口
       objectFactoryElement(root.evalNode("objectFactory"));
+      // MateObject 方便反射操作实体类
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
+
       settingsElement(settings);
-      // read it after objectFactory and objectWrapperFactory issue #631
+      // read it after objectFactory and objectWrapperFactory issue #631 数据库配置
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
       typeHandlerElement(root.evalNode("typeHandlers"));
+      // 核心：解析 Mapper 节点
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -160,17 +169,21 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void typeAliasesElement(XNode parent) {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
+        // 首先解析的是 package 的目录, 也就是注解模式
         if ("package".equals(child.getName())) {
           String typeAliasPackage = child.getStringAttribute("name");
           configuration.getTypeAliasRegistry().registerAliases(typeAliasPackage);
         } else {
-          String alias = child.getStringAttribute("alias");
-          String type = child.getStringAttribute("type");
+          String alias = child.getStringAttribute("alias"); // 别名名称
+          String type = child.getStringAttribute("type");   // 别名完整类名
           try {
+            // 根据类名获取到类对象然后放到 typeAlias 中，在后面用到 别名的时候再去取
             Class<?> clazz = Resources.classForName(type);
             if (alias == null) {
+              // 解析注解本质和解析 xml 逻辑是一致的，只不过需要额外获取注解中的别名。
               typeAliasRegistry.registerAlias(clazz);
             } else {
+              // 解析 xml
               typeAliasRegistry.registerAlias(alias, clazz);
             }
           } catch (ClassNotFoundException e) {
@@ -360,6 +373,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void mapperElement(XNode parent) throws Exception {
     if (parent != null) {
+      // 遍历 Mapper 节点
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
           String mapperPackage = child.getStringAttribute("name");
@@ -368,6 +382,7 @@ public class XMLConfigBuilder extends BaseBuilder {
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
+          // resource，url 和 class 三者只能有一个值
           if (resource != null && url == null && mapperClass == null) {
             ErrorContext.instance().resource(resource);
             InputStream inputStream = Resources.getResourceAsStream(resource);
@@ -394,10 +409,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       throw new BuilderException("No environment specified.");
     } else if (id == null) {
       throw new BuilderException("Environment requires an id attribute.");
-    } else if (environment.equals(id)) {
-      return true;
-    }
-    return false;
+    } else return environment.equals(id);
   }
 
 }

@@ -124,7 +124,9 @@ public class MapperAnnotationBuilder {
 
   public void parse() {
     String resource = type.toString();
+    // 如果是注解形式，那么就会解析 xml
     if (!configuration.isResourceLoaded(resource)) {
+      // 加载 xml 文件，此处代码解释了为什么 xml 的目录和名字需要和 dao 保持一致
       loadXmlResource();
       configuration.addLoadedResource(resource);
       assistant.setCurrentNamespace(type.getName());
@@ -171,6 +173,7 @@ public class MapperAnnotationBuilder {
     // Spring may not know the real resource name so we check a flag
     // to prevent loading again a resource twice
     // this flag is set at XMLMapperBuilder#bindMapperForNamespace
+    // 直接获取到类名，修改 后缀名 去加载 xml
     if (!configuration.isResourceLoaded("namespace:" + type.getName())) {
       String xmlResource = type.getName().replace('.', '/') + ".xml";
       // #1347

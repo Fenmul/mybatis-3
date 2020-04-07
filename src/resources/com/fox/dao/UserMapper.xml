@@ -6,4 +6,8 @@
   <select id="selectList" resultType="com.fox.domain.User">
     select * from user
   </select>
+
+  <select id="selectById" parameterType="int" resultType="com.fox.domain.User">
+    select * from user where id = #{id}
+  </select>
 </mapper>

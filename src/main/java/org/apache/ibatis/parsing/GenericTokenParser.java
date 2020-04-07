@@ -30,6 +30,8 @@ public class GenericTokenParser {
     this.handler = handler;
   }
 
+  // 解析判断是否包含占位符 openToken: ${, closeToken: }, handler: true
+  // 解析判断是否包含占位符 openToken: #{, closeToken: }, handler: true，额外替换为 ?
   public String parse(String text) {
     if (text == null || text.isEmpty()) {
       return "";
@@ -74,6 +76,7 @@ public class GenericTokenParser {
           builder.append(src, start, src.length - start);
           offset = src.length;
         } else {
+//          ParameterMappingTokenHandler 的 handleToken 方法 会将 #{} 替换为 ？
           builder.append(handler.handleToken(expression.toString()));
           offset = end + closeToken.length();
         }

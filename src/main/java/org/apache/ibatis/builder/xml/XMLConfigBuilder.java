@@ -240,6 +240,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       if (resource != null && url != null) {
         throw new BuilderException("The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
       }
+      // 外部文件引入时配置了 resource 和 url 则优先读取 resource 中的内容
       if (resource != null) {
         defaults.putAll(Resources.getResourceAsProperties(resource));
       } else if (url != null) {

@@ -54,4 +54,20 @@ public class MybatisTest {
     User user = mapper.selectById(1);
     System.out.println(user);
   }
+
+  /**
+   * 使用 mybatis 调用接口查询 User 信息
+   */
+  @Test
+  public void testSelectUsers() {
+    User user1 = new User();
+    user1.setNickname("zhangsan");
+    user1.setUsername("zs");
+    UserDao mapper = sqlSession.getMapper(UserDao.class);
+    List<User> users = mapper.selectUsers(user1);
+
+    for (User user : users) {
+      System.out.println(user);
+    }
+  }
 }

@@ -3,11 +3,15 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fox.dao.UserDao">
-  <select id="selectList" resultType="com.fox.domain.User">
+    <select id="selectList" resultType="com.fox.domain.User">
     select * from user
   </select>
 
-  <select id="selectById" parameterType="int" resultType="com.fox.domain.User">
+    <select id="selectUsers" parameterType="com.fox.domain.User" resultType="com.fox.domain.User">
+    select * from user where username = #{username} and nickname = #{nickname}
+  </select>
+
+    <select id="selectById" parameterType="int" resultType="com.fox.domain.User">
     select * from user where id = #{id}
   </select>
 </mapper>

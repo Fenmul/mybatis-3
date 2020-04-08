@@ -4,6 +4,7 @@ public class User {
   private Integer id;
   private String username;
   private String nickname;
+    private String note;
 
   public String getUsername() {
     return username;
@@ -21,20 +22,29 @@ public class User {
     this.nickname = nickname;
   }
 
-  public Integer getId() {
-    return id;
-  }
+    public Integer getId() {
+        return id;
+    }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-  @Override
-  public String toString() {
-    return "User{" +
-      "id=" + id +
-      ", username='" + username + '\'' +
-      ", nickname='" + nickname + '\'' +
-      '}';
-  }
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", note='" + note + '\'' +
+                ", nickname='" + nickname + '\'' +
+                '}';
+    }
 }

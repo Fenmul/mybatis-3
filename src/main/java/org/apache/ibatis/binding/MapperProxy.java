@@ -76,11 +76,13 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     lookupConstructor = lookup;
   }
 
+  // 增强接口的具体实现
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
+      // method 对象表示的方法的类的 Class 对象 如果是 Object 类的就不做增强，如果重写了 Object 类的方法，那么签名类就是当前类
       if (Object.class.equals(method.getDeclaringClass())) {
-        return method.invoke(this, args);
+        return method.invoke(this, args);         // 直接调用 method 对象的底层方法，如果目标方法没有返回值那么就会返回 Void 对象
       } else {
         return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
       }
@@ -91,8 +93,11 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
   private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
     try {
+      // 代理类缓存的处理
       return methodCache.computeIfAbsent(method, m -> {
+        // 判断是否是默认方法， Java 8 新增了接口的默认方法
         if (m.isDefault()) {
+          // 默认方法会直接绑定到代理类中
           try {
             if (privateLookupInMethod == null) {
               return new DefaultMethodInvoker(getMethodHandleJava8(method));
@@ -104,6 +109,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
             throw new RuntimeException(e);
           }
         } else {
+          // 增强方法，MapperMethod 就是封装了 sql 和方法信息
           return new PlainMethodInvoker(new MapperMethod(mapperInterface, method, sqlSession.getConfiguration()));
         }
       });
@@ -124,6 +130,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   private MethodHandle getMethodHandleJava8(Method method)
       throws IllegalAccessException, InstantiationException, InvocationTargetException {
     final Class<?> declaringClass = method.getDeclaringClass();
+    // 反射操作类，更加轻量级，构建方法句柄 MethodHandle，调用的时候直接调用 类似于前端入参是一个方法，最后绑定到代理中
     return lookupConstructor.newInstance(declaringClass, ALLOWED_MODES).unreflectSpecial(method, declaringClass);
   }
 
@@ -141,6 +148,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args, SqlSession sqlSession) throws Throwable {
+      // 最终执行 sql
       return mapperMethod.execute(sqlSession, args);
     }
   }

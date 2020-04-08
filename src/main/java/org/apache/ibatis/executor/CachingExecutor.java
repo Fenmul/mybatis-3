@@ -85,7 +85,7 @@ public class CachingExecutor implements Executor {
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
     BoundSql boundSql = ms.getBoundSql(parameterObject);
-    CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);
+    CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);  // 创建缓存
     return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
 
@@ -94,9 +94,11 @@ public class CachingExecutor implements Executor {
       throws SQLException {
     Cache cache = ms.getCache();
     if (cache != null) {
-      flushCacheIfRequired(ms);
+      flushCacheIfRequired(ms); // 判断是否需要刷新缓存
       if (ms.isUseCache() && resultHandler == null) {
+        // 判断参数有没有超出预设
         ensureNoOutParams(ms, boundSql);
+        // 从缓存中获取
         @SuppressWarnings("unchecked")
         List<E> list = (List<E>) tcm.getObject(cache, key);
         if (list == null) {
@@ -106,6 +108,7 @@ public class CachingExecutor implements Executor {
         return list;
       }
     }
+    // 缓存中未查询到执行 sql
     return delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
 

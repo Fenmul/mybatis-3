@@ -123,12 +123,13 @@ public class ParamNameResolver {
     final int paramCount = names.size();
     if (args == null || paramCount == 0) {
       return null;
-    } else if (!hasParamAnnotation && paramCount == 1) {
+    } else if (!hasParamAnnotation && paramCount == 1) {  // 没有加注解，并且参数为 1，不做改动直接返回出去
       Object value = args[names.firstKey()];
       return wrapToMapIfCollection(value, useActualParamName ? names.get(0) : null);
     } else {
       final Map<String, Object> param = new ParamMap<>();
       int i = 0;
+      // 遍历接口参数，获取方法签名
       for (Map.Entry<Integer, String> entry : names.entrySet()) {
         param.put(entry.getValue(), args[entry.getKey()]);
         // add generic param names (param1, param2, ...)
